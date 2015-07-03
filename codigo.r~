@@ -1,0 +1,38 @@
+# baixar aquivo do site http://inter01.tse.jus.br/spceweb.consulta.receitasdespesas2014/abrirTelaReceitasCandidato.action
+
+# Escolha o partido/UF e candidato.
+#Nesse exemplo, PMDB-RJ Eduardo Consentino Cunha
+
+# Colocar o arquivo na mesma pasta que este script e carregar o arquivo
+
+politico<-read.table(file="receita.csv",encoding ="latin1", sep=";",header = T,na.strings = "")
+
+#vendo a estrutura dos dados
+str(politico)
+# Temos que converter o valor para numero e formatar os pontos e vigulas
+politico$Valor.R.<-sub("R\\$","",politico$Valor.R.)
+politico$Valor.R.<-sub("\\.","",politico$Valor.R.)
+politico$Valor.R.<-sub(",",".",politico$Valor.R.)
+
+politico$Valor.R.<-as.numeric(politico$Valor.R.)
+
+# Agora podemos ver o quanto foi arrecadado
+total<-sum(politico$Valor.R.)
+# Abaixo é apenas para ver melhor
+print(format(total, big.mark=" "))
+
+# Quem deu $?
+## primeiro somar todas as doações por nome do doador,
+dt<-aggregate(politico$Valor.R.,by=list(politico$Doador.Originário),FUN =sum)
+# tranformar o resultado do anterior em uma tabela
+row.names(dt)<-dt[,1]
+#colocando em ordem crescente
+dt<-dt[order(dt[,2]),]
+
+#convertendo os valores em milhares
+#dt[,2]<-dt[,2]/1000
+
+
+#Fazer um grafico
+par(mar=c(4,20.1,4.1,2.1))
+barplot(dt[,2],names.arg = dt[,1],horiz = T,las=1,xlab = "milhares de reais")
